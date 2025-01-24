@@ -9,3 +9,7 @@ type OrderRepository interface {
 	// GetChatRoomId(chatRoomId string) (*Chat, error)
 	// GetChatRooms(userId string) ([]*Chat, error)
 }
+
+type OrderService interface {
+	CreateNewOrder(in *model.OrderDto) error
+}
