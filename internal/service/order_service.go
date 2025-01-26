@@ -5,14 +5,13 @@ import (
 
 	"github.com/adzi007/ecommerce-order-service/internal/domain"
 	"github.com/adzi007/ecommerce-order-service/internal/model"
-	"github.com/adzi007/ecommerce-order-service/internal/repository"
 )
 
 type OrderService struct {
-	orderRepo repository.OrderPostgresRepo
+	orderRepo domain.OrderRepository
 }
 
-func NewOrderServiceImpl(orderRepo repository.OrderPostgresRepo) domain.OrderService {
+func NewOrderServiceImpl(orderRepo domain.OrderRepository) domain.OrderService {
 	return &OrderService{
 		orderRepo: orderRepo,
 	}

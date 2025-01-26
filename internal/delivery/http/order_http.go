@@ -3,17 +3,17 @@ package http
 import (
 	"fmt"
 
+	"github.com/adzi007/ecommerce-order-service/internal/domain"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/logger"
 	"github.com/adzi007/ecommerce-order-service/internal/model"
-	"github.com/adzi007/ecommerce-order-service/internal/service"
 	"github.com/gofiber/fiber/v2"
 )
 
 type orderHttpHandler struct {
-	orderService service.OrderService
+	orderService domain.OrderService
 }
 
-func NewOrderHttpHandle(orderService service.OrderService) OrderHandler {
+func NewOrderHttpHandle(orderService domain.OrderService) OrderHandler {
 	return &orderHttpHandler{
 		orderService: orderService,
 	}
@@ -33,7 +33,9 @@ func (h *orderHttpHandler) InsertNewOrder(ctx *fiber.Ctx) error {
 
 	fmt.Println("reqBody >>> ", reqBody)
 
+	h.orderService.CreateNewOrder(reqBody)
+
 	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
-		"pesan": "success create a new cart 1",
+		"pesan": "test create new order",
 	})
 }
