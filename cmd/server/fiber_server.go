@@ -3,29 +3,33 @@ package server
 import (
 	"log"
 
+	grpcclient "github.com/adzi007/ecommerce-order-service/internal/delivery/grpc_client"
 	"github.com/adzi007/ecommerce-order-service/internal/delivery/http"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/database"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/logger"
 	"github.com/adzi007/ecommerce-order-service/internal/repository"
 	"github.com/adzi007/ecommerce-order-service/internal/service"
 	"github.com/gofiber/fiber/v2"
+	"google.golang.org/grpc"
 )
 
 type fiberServer struct {
-	app *fiber.App
-	db  database.Database
+	app  *fiber.App
+	db   database.Database
+	conn *grpc.ClientConn
 	// conf *config.Config
 }
 
-func NewFiberServer(db database.Database) Server {
+func NewFiberServer(db database.Database, conn *grpc.ClientConn) Server {
 	fiberApp := fiber.New()
 	// fiberApp.Logger.SetLevel(log.DEBUG)
 
 	// fiberApp.Get("/docs/*", swagger.HandlerDefault)
 
 	return &fiberServer{
-		app: fiberApp,
-		db:  db,
+		app:  fiberApp,
+		db:   db,
+		conn: conn,
 	}
 }
 
@@ -46,7 +50,7 @@ func (s *fiberServer) Start() {
 
 	s.initializeCartServiceHttpHandler()
 
-	log.Fatal(s.app.Listen(":5000"))
+	log.Fatal(s.app.Listen(":5001"))
 }
 
 func (s *fiberServer) initializeCartServiceHttpHandler() {
@@ -55,6 +59,16 @@ func (s *fiberServer) initializeCartServiceHttpHandler() {
 
 	// redisRepo := cachestore.NewRedisCache(ctx, "localhost:6379", "", 0)
 
+	// ------ gRpc Setup -------------------
+
+	// conn := grpcconnection.NewGrpcConnection("localhost:9001")
+	// defer conn.Close()
+
+	// // Initialize the Cart gRPC client
+	cartGrpcClient := grpcclient.NewCartGrpcClient(s.conn)
+
+	// -------------------------------------
+
 	// repository
 	orderRepo := repository.NewOrderRepo(s.db)
 
@@ -62,7 +76,7 @@ func (s *fiberServer) initializeCartServiceHttpHandler() {
 	// productServiceRepo := productservicerepo.NewProductServiceRepository()
 
 	// use case
-	orderService := service.NewOrderServiceImpl(orderRepo)
+	orderService := service.NewOrderServiceImpl(orderRepo, cartGrpcClient)
 
 	// handler
 
