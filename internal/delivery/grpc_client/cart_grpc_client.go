@@ -34,11 +34,12 @@ func (c *CartGrpcClient) GetCartByUserID(userID string) ([]domain.CartItem, erro
 	var cartItems []domain.CartItem
 	for _, item := range resp.Data {
 		cartItems = append(cartItems, domain.CartItem{
-			ID:    item.Id,
-			Name:  item.Name,
-			Slug:  item.Slug,
-			Price: item.Price,
-			Qty:   item.Qty,
+			ID:        item.Id,
+			ProductId: item.ProductId,
+			Name:      item.Name,
+			Slug:      item.Slug,
+			Price:     item.Price,
+			Qty:       item.Qty,
 			Category: domain.ProductCategory{
 				Name: item.Category.Name,
 				Slug: item.Category.Slug,

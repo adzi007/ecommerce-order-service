@@ -1,12 +1,13 @@
 package domain
 
 type CartItem struct {
-	ID       uint64
-	Name     string
-	Slug     string
-	Price    uint64
-	Qty      uint64
-	Category ProductCategory
+	ID        uint64
+	ProductId uint64
+	Name      string
+	Slug      string
+	Price     uint64
+	Qty       uint64
+	Category  ProductCategory
 }
 
 type ProductCategory struct {
