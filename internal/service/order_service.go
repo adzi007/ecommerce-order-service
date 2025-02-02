@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/adzi007/ecommerce-order-service/internal/domain"
+	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/logger"
 	"github.com/adzi007/ecommerce-order-service/internal/model"
 	httpclient "github.com/adzi007/ecommerce-order-service/pkg/http_client"
 	"github.com/k0kubun/pp/v3"
@@ -36,11 +37,21 @@ func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 	}
 
 	var items []ValidateOrderItem
+	var totalPrice uint64
+	var orderDetail []model.NewOrderDetail
 
 	for _, val := range cartResponse {
+		totalPrice += val.Price * val.Qty
+
 		items = append(items, ValidateOrderItem{
 			ID:  int(val.ProductId),
 			Qty: int(val.Qty),
+		})
+
+		orderDetail = append(orderDetail, model.NewOrderDetail{
+			ProductID: uint(val.ProductId),
+			Quantity:  int(val.Qty),
+			Price:     float64(val.Price),
 		})
 	}
 
@@ -48,16 +59,38 @@ func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 		"productsOrderList": items,
 	}
 
+	// --- validate order
 	httpClient := httpclient.NewHTTPClient()
 	url := "http://localhost:3000/products/validate-order"
 
-	response, err := httpClient.Post(url, postPayload, nil)
+	_, err = httpClient.Post(url, postPayload, nil)
 
 	if err != nil {
 		pp.Printf("POST request failed: %v", err)
 	}
+	// --- end validate order
 
-	pp.Printf("POST Response: %s\n", string(response))
+	newOrder := model.NewOrder{
+		UserId:     in.UserId,
+		TotalPrice: float64(totalPrice),
+	}
+
+	if err := s.orderRepo.CreateNewOrder(newOrder, orderDetail); err != nil {
+
+		pp.Println("failed save new order")
+		logger.Error().Err(err).Msg("failed save new order")
+	}
+
+	// delete cart by user
+
+	_, err = s.cartGrpcClient.DeleteCartUser(in.UserId)
+
+	if err != nil {
+		pp.Println("failed delete item by userId " + in.UserId)
+		logger.Error().Err(err).Msg("failed delete item by userId " + in.UserId)
+
+		return err
+	}
 
 	return nil
 }

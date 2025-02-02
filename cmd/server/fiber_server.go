@@ -17,14 +17,11 @@ type fiberServer struct {
 	app  *fiber.App
 	db   database.Database
 	conn *grpc.ClientConn
-	// conf *config.Config
 }
 
 func NewFiberServer(db database.Database, conn *grpc.ClientConn) Server {
-	fiberApp := fiber.New()
-	// fiberApp.Logger.SetLevel(log.DEBUG)
 
-	// fiberApp.Get("/docs/*", swagger.HandlerDefault)
+	fiberApp := fiber.New()
 
 	return &fiberServer{
 		app:  fiberApp,
@@ -45,7 +42,7 @@ func (s *fiberServer) Start() {
 	})
 
 	logger.Info().Msg("This is an info message")
-	// logger.Warn().Str("user", "john_doe").Msg("This is a warning message")
+
 	logger.Warn().Msg("This is a warning message")
 
 	s.initializeCartServiceHttpHandler()
@@ -55,40 +52,19 @@ func (s *fiberServer) Start() {
 
 func (s *fiberServer) initializeCartServiceHttpHandler() {
 
-	// ctx := context.Background()
-
-	// redisRepo := cachestore.NewRedisCache(ctx, "localhost:6379", "", 0)
-
-	// ------ gRpc Setup -------------------
-
-	// conn := grpcconnection.NewGrpcConnection("localhost:9001")
-	// defer conn.Close()
-
-	// // Initialize the Cart gRPC client
+	// Initialize the Cart gRPC client
 	cartGrpcClient := grpcclient.NewCartGrpcClient(s.conn)
-
-	// -------------------------------------
 
 	// repository
 	orderRepo := repository.NewOrderRepo(s.db)
-
-	// product service repository
-	// productServiceRepo := productservicerepo.NewProductServiceRepository()
 
 	// use case
 	orderService := service.NewOrderServiceImpl(orderRepo, cartGrpcClient)
 
 	// handler
-
 	orderHandler := http.NewOrderHttpHandle(orderService)
 
 	// router
-	// s.app.Post("/cart", cartHandler.InsertNewCart)
 	s.app.Post("/", orderHandler.InsertNewOrder)
-	// s.app.Get("/", cartHandler.GetCustomerCart)
-	// s.app.Get("/:userId", cartHandler.GetCartByCustomer)
-	// s.app.Put("/", cartHandler.UpdateQty)
-	// s.app.Delete("/:cartId", cartHandler.DeleteCartItem)
-	// s.app.Get("/check/redis", cartHandler.Check)
 
 }

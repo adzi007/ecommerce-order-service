@@ -49,3 +49,22 @@ func (c *CartGrpcClient) GetCartByUserID(userID string) ([]domain.CartItem, erro
 
 	return cartItems, nil
 }
+
+func (c *CartGrpcClient) DeleteCartUser(userID string) (domain.DeleteCartResponse, error) {
+
+	req := &proto.UserRequest{
+		UserId: userID,
+	}
+
+	resp, err := c.client.DeleteCartUser(context.Background(), req)
+
+	if err != nil {
+		return domain.DeleteCartResponse{}, err
+	}
+
+	return domain.DeleteCartResponse{
+		Message: resp.Message,
+	}, nil
+
+	// return nil, nil
+}

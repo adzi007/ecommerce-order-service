@@ -15,6 +15,11 @@ type ProductCategory struct {
 	Slug string
 }
 
+type DeleteCartResponse struct {
+	Message string
+}
+
 type CartRepository interface {
 	GetCartByUserID(userID string) ([]CartItem, error)
+	DeleteCartUser(userID string) (DeleteCartResponse, error)
 }
