@@ -66,5 +66,6 @@ func (s *fiberServer) initializeCartServiceHttpHandler() {
 
 	// router
 	s.app.Post("/", orderHandler.InsertNewOrder)
+	s.app.Put("/:orderId", orderHandler.UpdateOrderStatus)
 
 }

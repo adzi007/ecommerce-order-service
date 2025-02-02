@@ -5,6 +5,7 @@ import (
 
 	"github.com/adzi007/ecommerce-order-service/internal/domain"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/database"
+	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/logger"
 	"github.com/adzi007/ecommerce-order-service/internal/model"
 	"gorm.io/gorm"
 )
@@ -24,10 +25,6 @@ func (r *OrderPostgresRepo) CreateNewOrder(order model.NewOrder, orderList []mod
 		TotalPrice: order.TotalPrice,
 		Status:     order.Status,
 	}
-
-	// fmt.Println("newOrder >>> ", newOrder)
-	// fmt.Println("orderList >>> ", orderList)
-
 	err := r.db.GetDb().Transaction(func(tx *gorm.DB) error {
 
 		if err := tx.Create(&newOrder).Error; err != nil {
@@ -37,8 +34,6 @@ func (r *OrderPostgresRepo) CreateNewOrder(order model.NewOrder, orderList []mod
 		var newOrderDetails []model.OrderDetail
 
 		for _, val := range orderList {
-			// orderDetails[i].OrderID = newOrder.ID
-
 			orderItem := model.OrderDetail{
 				OrderID:   newOrder.ID,
 				ProductID: val.ProductID,
@@ -63,4 +58,21 @@ func (r *OrderPostgresRepo) CreateNewOrder(order model.NewOrder, orderList []mod
 	}
 
 	return nil
+}
+
+func (r *OrderPostgresRepo) UpdateStatusOrder(orderId uint64, status string) error {
+
+	var order model.Order
+
+	if err := r.db.GetDb().First(&order, orderId).Error; err != nil {
+
+		logger.Error().Err(err).Msgf("order not found by id %d!", orderId)
+
+		return err
+	}
+
+	order.Status = status
+
+	return r.db.GetDb().Save(&order).Error
+
 }

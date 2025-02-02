@@ -94,3 +94,8 @@ func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 
 	return nil
 }
+
+func (s *OrderService) UpdateOrderStatus(orderId uint64, status string) error {
+
+	return s.orderRepo.UpdateStatusOrder(orderId, status)
+}
