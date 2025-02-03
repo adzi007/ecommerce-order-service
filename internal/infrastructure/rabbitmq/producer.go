@@ -28,13 +28,23 @@ func (r *RabbitMQ) PublishOrderStatus(exchange, routingKey string, order OrderMe
 		return err
 	}
 
+	// Ensure the channel is open before publishing
+	if r.Channel == nil || r.Channel.IsClosed() {
+		ch, err := r.Conn.Channel()
+		if err != nil {
+			return err
+		}
+		r.Channel = ch
+	}
+
 	q, err := r.Channel.QueueDeclare(
-		"hello", // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+		routingKey, // name
+		true,       // durable
+		false,      // delete when unused
+		false,      // exclusive
+		false,      // no-wait
+		// nil,        // arguments
+		amqp091.Table{"x-queue-type": "quorum"},
 	)
 
 	failOnError(err, "Failed to declare a queue")
@@ -44,10 +54,10 @@ func (r *RabbitMQ) PublishOrderStatus(exchange, routingKey string, order OrderMe
 	defer cancel()
 
 	err = r.Channel.PublishWithContext(ctx,
-		"",     // exchange
-		q.Name, // routing key
-		false,  // mandatory
-		false,  // immediate
+		exchange, // exchange
+		q.Name,   // routing key
+		false,    // mandatory
+		false,    // immediate
 		amqp091.Publishing{
 			ContentType: "application/json",
 			Body:        body,

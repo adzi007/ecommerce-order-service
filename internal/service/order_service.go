@@ -113,7 +113,7 @@ func (s *OrderService) UpdateOrderStatus(orderId uint64, status string) error {
 		Status:  status,
 	}
 
-	err := s.RabbitMQ.PublishOrderStatus("order_exchange", "order.status", orderMessage)
+	err := s.RabbitMQ.PublishOrderStatus("notification", "realtime_notif", orderMessage)
 
 	if err != nil {
 		// log.Printf("Failed to publish order status: %v", err)
