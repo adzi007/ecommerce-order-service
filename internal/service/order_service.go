@@ -5,6 +5,7 @@ import (
 
 	"github.com/adzi007/ecommerce-order-service/internal/domain"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/logger"
+	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/rabbitmq"
 	"github.com/adzi007/ecommerce-order-service/internal/model"
 	httpclient "github.com/adzi007/ecommerce-order-service/pkg/http_client"
 	"github.com/k0kubun/pp/v3"
@@ -14,12 +15,14 @@ type OrderService struct {
 	orderRepo domain.OrderRepository
 	// cartGrpcClient grpcclient.CartGrpcClient
 	cartGrpcClient domain.CartRepository
+	RabbitMQ       *rabbitmq.RabbitMQ
 }
 
-func NewOrderServiceImpl(orderRepo domain.OrderRepository, cartGrpcClient domain.CartRepository) domain.OrderService {
+func NewOrderServiceImpl(orderRepo domain.OrderRepository, cartGrpcClient domain.CartRepository, rabbitMQ *rabbitmq.RabbitMQ) domain.OrderService {
 	return &OrderService{
 		orderRepo:      orderRepo,
 		cartGrpcClient: cartGrpcClient,
+		RabbitMQ:       rabbitMQ,
 	}
 }
 
@@ -97,5 +100,26 @@ func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 
 func (s *OrderService) UpdateOrderStatus(orderId uint64, status string) error {
 
-	return s.orderRepo.UpdateStatusOrder(orderId, status)
+	if err := s.orderRepo.UpdateStatusOrder(orderId, status); err != nil {
+
+		logger.Error().Err(err).Msgf("Failed to update status order_id %d", orderId)
+		pp.Println("Failed to update status order_id ", orderId)
+
+		return err
+	}
+
+	orderMessage := rabbitmq.OrderMessage{
+		OrderID: orderId,
+		Status:  status,
+	}
+
+	err := s.RabbitMQ.PublishOrderStatus("order_exchange", "order.status", orderMessage)
+
+	if err != nil {
+		// log.Printf("Failed to publish order status: %v", err)
+		logger.Error().Err(err).Msgf("Failed to publish order status: %v", err)
+		return err
+	}
+
+	return nil
 }

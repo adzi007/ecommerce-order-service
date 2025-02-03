@@ -7,6 +7,7 @@ import (
 	"github.com/adzi007/ecommerce-order-service/internal/delivery/http"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/database"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/logger"
+	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/rabbitmq"
 	"github.com/adzi007/ecommerce-order-service/internal/repository"
 	"github.com/adzi007/ecommerce-order-service/internal/service"
 	"github.com/gofiber/fiber/v2"
@@ -52,6 +53,12 @@ func (s *fiberServer) Start() {
 
 func (s *fiberServer) initializeCartServiceHttpHandler() {
 
+	rabbitMQ, err := rabbitmq.NewRabbitMQ("amqp://guest:guest@localhost:5672/")
+	if err != nil {
+		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
+	}
+	defer rabbitMQ.Close()
+
 	// Initialize the Cart gRPC client
 	cartGrpcClient := grpcclient.NewCartGrpcClient(s.conn)
 
@@ -59,7 +66,7 @@ func (s *fiberServer) initializeCartServiceHttpHandler() {
 	orderRepo := repository.NewOrderRepo(s.db)
 
 	// use case
-	orderService := service.NewOrderServiceImpl(orderRepo, cartGrpcClient)
+	orderService := service.NewOrderServiceImpl(orderRepo, cartGrpcClient, rabbitMQ)
 
 	// handler
 	orderHandler := http.NewOrderHttpHandle(orderService)
