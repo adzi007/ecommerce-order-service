@@ -69,3 +69,21 @@ func (h *orderHttpHandler) UpdateOrderStatus(ctx *fiber.Ctx) error {
 		"pesan": "Success Update Status Order",
 	})
 }
+
+func (h *orderHttpHandler) GetOrdersByCustomer(ctx *fiber.Ctx) error {
+
+	userId := ctx.Params("userId")
+
+	data, err := h.orderService.GetOrderByUser(userId)
+
+	if err != nil {
+		return ctx.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"pesan": "Failed to get orders",
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(fiber.Map{
+		"pesan": "Success get orders",
+		"data":  data,
+	})
+}

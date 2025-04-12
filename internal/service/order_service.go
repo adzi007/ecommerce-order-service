@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 
+	"github.com/adzi007/ecommerce-order-service/config"
 	"github.com/adzi007/ecommerce-order-service/internal/domain"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/logger"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/rabbitmq"
@@ -64,13 +65,17 @@ func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 
 	// --- validate order
 	httpClient := httpclient.NewHTTPClient()
-	url := "http://localhost:3000/products/validate-order"
+
+	// url := "http://localhost:3000/products/validate-order"
+
+	url := config.ENV.API_GATEWAY + config.ENV.PRODUCT_SERVICE_PATH + "/validate-order"
 
 	_, err = httpClient.Post(url, postPayload, nil)
 
 	if err != nil {
 		pp.Printf("POST request failed: %v", err)
 	}
+
 	// --- end validate order
 
 	newOrder := model.NewOrder{
@@ -85,7 +90,6 @@ func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 	}
 
 	// delete cart by user
-
 	_, err = s.cartGrpcClient.DeleteCartUser(in.UserId)
 
 	if err != nil {
@@ -122,4 +126,17 @@ func (s *OrderService) UpdateOrderStatus(orderId uint64, status string) error {
 	}
 
 	return nil
+}
+
+func (s *OrderService) GetOrderByUser(userId string) ([]model.Order, error) {
+
+	orders, err := s.orderRepo.GetOrderByUser(userId)
+
+	if err != nil {
+		pp.Println("Error fetching orders:", err)
+		return nil, err
+	}
+
+	return orders, nil
+
 }

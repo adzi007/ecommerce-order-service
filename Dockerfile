@@ -1,26 +1,37 @@
+# Builder stage
 FROM golang:1.23.4-alpine AS builder
 
-# Set the working directory
+# Install git and required tools for Go modules
+RUN apk add --no-cache git
+
 WORKDIR /app
 
-# Copy the Go source code and .env file to the working directory
+# Copy go mod files first to leverage Docker cache
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the rest of the code
 COPY . .
 
-# Build the Go application
-RUN go build -o main .
+# Build the main application
+RUN go build -o main ./cmd/main.go
 
-# Build migration binary too
-RUN go build -o migrate internal/migration/migration.go
+# Build the migration binary
+RUN go build -o migrate ./internal/migration/migration.go
 
-# Create a new stage for the final image
+# Final stage (minimal image)
 FROM alpine:latest
 
-# Copy the built binary from the builder stage
-COPY --from=builder /app/main /
-# Copy the .env file into the root directory of the final image
+# Install SSL certificates (needed for HTTPS or DB connections)
+RUN apk add --no-cache ca-certificates
+
+# Copy compiled binaries and env
+COPY --from=builder /app/main /main
 COPY --from=builder /app/migrate /migrate
+COPY --from=builder /app/.env /app/.env
 
-COPY --from=builder /app/.env /
+# Set working directory
+WORKDIR /app
 
-# Set the command to run the binary
+# Set default command
 CMD ["/main"]

@@ -76,3 +76,15 @@ func (r *OrderPostgresRepo) UpdateStatusOrder(orderId uint64, status string) err
 	return r.db.GetDb().Save(&order).Error
 
 }
+
+func (r *OrderPostgresRepo) GetOrderByUser(UserId string) ([]model.Order, error) {
+
+	var orders []model.Order
+
+	filter := model.Order{UserId: UserId}
+
+	orderResult := r.db.GetDb().Where(&filter).Find(&orders)
+
+	return orders, orderResult.Error
+
+}

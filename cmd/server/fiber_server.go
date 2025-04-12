@@ -68,7 +68,7 @@ func (s *fiberServer) Start() {
 
 	// Start the server in a goroutine
 	go func() {
-		if err := s.app.Listen(":5001"); err != nil {
+		if err := s.app.Listen(":5002"); err != nil {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
@@ -115,4 +115,5 @@ func (s *fiberServer) initializeCartServiceHttpHandler() {
 	// router
 	s.app.Post("/", orderHandler.InsertNewOrder)
 	s.app.Put("/:orderId", orderHandler.UpdateOrderStatus)
+	s.app.Get("/:userId", orderHandler.GetOrdersByCustomer)
 }

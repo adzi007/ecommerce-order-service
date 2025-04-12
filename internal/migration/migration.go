@@ -18,8 +18,8 @@ func appDbMigrate(db database.Database) {
 
 	// db.GetDb().Migrator().CreateTable(&entity.Cart{})
 
-	// err := db.GetDb().Migrator().AutoMigrate(&model.Order{}, &model.OrderDetail{})
-	err := db.GetDb().Migrator().CreateTable(&model.Order{}, &model.OrderDetail{})
+	err := db.GetDb().Migrator().AutoMigrate(&model.Order{}, &model.OrderDetail{})
+	// err := db.GetDb().Migrator().CreateTable(&model.Order{}, &model.OrderDetail{})
 
 	if err != nil {
 		panic("failed to migrate database: " + err.Error())
