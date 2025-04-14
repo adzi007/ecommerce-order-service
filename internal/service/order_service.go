@@ -34,7 +34,11 @@ type ValidateOrderItem struct {
 
 func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 
+	pp.Println("req bpdyyy >>>> ", in)
+
 	cartResponse, err := s.cartGrpcClient.GetCartByUserID(in.UserId)
+
+	pp.Println("cartResponse >>> ", cartResponse)
 
 	if err != nil {
 		return fmt.Errorf("failed to fetch cart data: %w", err)

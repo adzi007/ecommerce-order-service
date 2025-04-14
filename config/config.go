@@ -17,6 +17,11 @@ type Config struct {
 	PORT_APP             string
 	API_GATEWAY          string
 	PRODUCT_SERVICE_PATH string
+	RABBITMQ_USER        string
+	RABBITMQ_PASS        string
+	RABBITMQ_HOST        string
+	RABBITMQ_PORT        string
+	RABBITMQ_VHOST       string
 }
 
 var (

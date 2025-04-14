@@ -7,24 +7,25 @@ services:
     networks:
       - ecommerce-network
     environment:
-      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_USER=adzi
       - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_DB=ecommerce_app
     ports:
       - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - db_order_data:/var/lib/postgresql/data
     env_file:
       - .env
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${DB_USERNAME}"]
+      # test: ["CMD", "pg_isready", "-U", "${DB_USERNAME}"]
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
 
   app:
     build: .
-    container_name: ecommerce-cart-service
+    container_name: ecommerce-order-service
     networks:
       - ecommerce-network
     depends_on:
@@ -47,4 +48,4 @@ networks:
     external: true
 
 volumes:
-  db_data:
+  db_order_data:

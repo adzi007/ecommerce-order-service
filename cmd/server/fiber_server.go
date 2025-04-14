@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/adzi007/ecommerce-order-service/config"
 	grpcclient "github.com/adzi007/ecommerce-order-service/internal/delivery/grpc_client"
 	"github.com/adzi007/ecommerce-order-service/internal/delivery/http"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/database"
@@ -28,7 +29,17 @@ type fiberServer struct {
 
 func NewFiberServer(db database.Database, conn *grpc.ClientConn) Server {
 
-	rabbitMQ, err := rabbitmq.NewRabbitMQ("amqp://guest:guest@localhost:5672/ecommerce_development")
+	rabbitUser := config.ENV.RABBITMQ_USER
+	rabbitPass := config.ENV.RABBITMQ_PASS
+	rabbitHost := config.ENV.RABBITMQ_HOST
+	rabbitPort := config.ENV.RABBITMQ_PORT
+	rabbitVHost := config.ENV.RABBITMQ_VHOST
+
+	amqpURL := "amqp://" + rabbitUser + ":" + rabbitPass + "@" + rabbitHost + ":" + rabbitPort + "/" + rabbitVHost
+
+	// rabbitMQ, err := rabbitmq.NewRabbitMQ("amqp://guest:guest@localhost:5672/ecommerce_development")
+	rabbitMQ, err := rabbitmq.NewRabbitMQ(amqpURL)
+
 	if err != nil {
 		log.Fatalf("Failed to connect to RabbitMQ: %v", err)
 	}
