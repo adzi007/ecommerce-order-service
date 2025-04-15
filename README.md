@@ -62,7 +62,7 @@ A backend microservice that handles order creation and updates in an e-commerce 
 1. Clone the project
 
 ```bash
-git https://github.com/adzi007/ecommerce-order-service.git
+git clone https://github.com/adzi007/ecommerce-order-service.git
 cd ecommerce-order-service
 ```
 
