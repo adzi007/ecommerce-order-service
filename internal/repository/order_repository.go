@@ -21,9 +21,11 @@ func NewOrderRepo(db database.Database) domain.OrderRepository {
 func (r *OrderPostgresRepo) CreateNewOrder(order model.NewOrder, orderList []model.NewOrderDetail) error {
 
 	newOrder := &model.Order{
-		UserId:     order.UserId,
-		TotalPrice: order.TotalPrice,
-		Status:     order.Status,
+		UserId:        order.UserId,
+		TotalPrice:    order.TotalPrice,
+		PaymentMethod: order.PaymentMethod,
+		PaymentFee:    order.PaymentFee,
+		Status:        order.Status,
 	}
 	err := r.db.GetDb().Transaction(func(tx *gorm.DB) error {
 

@@ -83,8 +83,10 @@ func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 	// --- end validate order
 
 	newOrder := model.NewOrder{
-		UserId:     in.UserId,
-		TotalPrice: float64(totalPrice),
+		UserId:        in.UserId,
+		PaymentMethod: in.PaymentMethod,
+		PaymentFee:    float64(in.PaymentFee),
+		TotalPrice:    float64(totalPrice),
 	}
 
 	if err := s.orderRepo.CreateNewOrder(newOrder, orderDetail); err != nil {
