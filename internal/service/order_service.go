@@ -110,16 +110,20 @@ func (s *OrderService) CreateNewOrder(in *model.OrderDto) error {
 
 func (s *OrderService) UpdateOrderStatus(orderId uint64, status string) error {
 
-	if err := s.orderRepo.UpdateStatusOrder(orderId, status); err != nil {
+	userId, errUpdateStatus := s.orderRepo.UpdateStatusOrder(orderId, status)
 
-		logger.Error().Err(err).Msgf("Failed to update status order_id %d", orderId)
+	pp.Println("userId >>> ", userId)
+
+	if errUpdateStatus != nil {
+		logger.Error().Err(errUpdateStatus).Msgf("Failed to update status order_id %d", orderId)
 		pp.Println("Failed to update status order_id ", orderId)
 
-		return err
+		return errUpdateStatus
 	}
 
 	orderMessage := rabbitmq.OrderMessage{
 		OrderID: orderId,
+		UserId:  userId,
 		Status:  status,
 	}
 

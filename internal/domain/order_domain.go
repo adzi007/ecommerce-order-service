@@ -4,7 +4,7 @@ import "github.com/adzi007/ecommerce-order-service/internal/model"
 
 type OrderRepository interface {
 	CreateNewOrder(model.NewOrder, []model.NewOrderDetail) error
-	UpdateStatusOrder(orderId uint64, status string) error
+	UpdateStatusOrder(orderId uint64, status string) (string, error)
 	GetOrderByUser(UserId string) ([]model.Order, error)
 	// SendChat(ChatBubble, string) error
 	// SetReadedChat(chatRoomId, chatBubbleId string) error

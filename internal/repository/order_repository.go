@@ -62,7 +62,7 @@ func (r *OrderPostgresRepo) CreateNewOrder(order model.NewOrder, orderList []mod
 	return nil
 }
 
-func (r *OrderPostgresRepo) UpdateStatusOrder(orderId uint64, status string) error {
+func (r *OrderPostgresRepo) UpdateStatusOrder(orderId uint64, status string) (string, error) {
 
 	var order model.Order
 
@@ -70,12 +70,12 @@ func (r *OrderPostgresRepo) UpdateStatusOrder(orderId uint64, status string) err
 
 		logger.Error().Err(err).Msgf("order not found by id %d!", orderId)
 
-		return err
+		return "", err
 	}
 
 	order.Status = status
 
-	return r.db.GetDb().Save(&order).Error
+	return order.UserId, r.db.GetDb().Save(&order).Error
 
 }
 
