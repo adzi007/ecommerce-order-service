@@ -13,6 +13,7 @@ import (
 	"github.com/adzi007/ecommerce-order-service/internal/delivery/http"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/database"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/logger"
+	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/monitoring"
 	"github.com/adzi007/ecommerce-order-service/internal/infrastructure/rabbitmq"
 	"github.com/adzi007/ecommerce-order-service/internal/repository"
 	"github.com/adzi007/ecommerce-order-service/internal/service"
@@ -122,6 +123,9 @@ func (s *fiberServer) initializeCartServiceHttpHandler() {
 
 	// handler
 	orderHandler := http.NewOrderHttpHandle(orderService)
+
+	// Add metrics route
+	s.app.Get("/metrics", monitoring.MetricsHandler())
 
 	// router
 	s.app.Post("/", orderHandler.InsertNewOrder)
