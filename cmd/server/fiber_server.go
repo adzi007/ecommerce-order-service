@@ -78,9 +78,11 @@ func (s *fiberServer) Start() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
 
+	portApp := config.ENV.PORT_APP
+
 	// Start the server in a goroutine
 	go func() {
-		if err := s.app.Listen(":5002"); err != nil {
+		if err := s.app.Listen(":" + portApp); err != nil {
 			log.Fatalf("Failed to start server: %v", err)
 		}
 	}()
