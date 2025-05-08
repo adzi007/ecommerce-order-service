@@ -22,6 +22,7 @@ type Config struct {
 	RABBITMQ_HOST        string
 	RABBITMQ_PORT        string
 	RABBITMQ_VHOST       string
+	GRPC_PORT            string
 }
 
 var (

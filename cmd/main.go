@@ -18,7 +18,10 @@ func main() {
 	db := database.NewPostgreesDatabase()
 
 	// conn := grpcconnection.NewGrpcConnection("localhost:9001")
-	conn := grpcconnection.NewGrpcConnection("ecommerce-cart-service:9001")
+
+	grpcPort := config.ENV.GRPC_PORT
+
+	conn := grpcconnection.NewGrpcConnection("ecommerce-cart-service:" + grpcPort)
 	defer conn.Close()
 
 	servernya := server.NewFiberServer(db, conn)
