@@ -99,4 +99,4 @@ docker exec -it ecommerce-order-service /migrate
 
 ## API Documentation
 
-<a href="https://www.postman.com/adzi/ecommerce-order-service" target="_blank">Postman Collections</a>
+<a href="https://www.postman.com/team-ninja-8073/ecommerce-order-service/collection/6hcanjj/go-ecommerce-order-service" target="_blank">Postman Collections</a>
